@@ -1,10 +1,43 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { BiTrash } from "react-icons/bi";
 import { db } from "./services/firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
+
+interface taskProps {
+  id: string;
+  task: string;
+}
 
 function App() {
   const [descriptionTask, setDescriptionTask] = useState("");
+  const [task, setTask] = useState<taskProps[]>([]);
+
+  useEffect(() => {
+    const taskRef = collection(db, "taskUsers");
+    const queryRef = query(taskRef, orderBy("created", "asc"));
+
+    const getData = onSnapshot(queryRef, (snapshot) => {
+      const tasks = [] as taskProps[];
+
+      snapshot.forEach((doc) => {
+        tasks.push({
+          id: doc.id,
+          task: doc.data().task,
+        });
+      });
+      setTask(tasks);
+    });
+
+    return () => {
+      getData();
+    };
+  }, []);
 
   function handleCreateTask(e: FormEvent) {
     e.preventDefault();

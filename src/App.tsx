@@ -7,6 +7,8 @@ import {
   query,
   orderBy,
   onSnapshot,
+  doc,
+  deleteDoc,
 } from "firebase/firestore";
 
 interface taskProps {
@@ -55,6 +57,11 @@ function App() {
       });
   }
 
+  async function handleDeleteTask(id: string) {
+    const taskRef = doc(db, "taskUsers", id);
+    await deleteDoc(taskRef);
+  }
+
   return (
     <div className="flex flex-col w-full h-screen items-center ">
       <header className=" mt-4 mb-11 border-b-2 p-2">
@@ -89,7 +96,7 @@ function App() {
             >
               <p>{taskList.task}</p>
 
-              <button>
+              <button onClick={() => handleDeleteTask(taskList.id)}>
                 <BiTrash size={18} color="#fff" />
               </button>
             </div>

@@ -1,15 +1,41 @@
+import { FormEvent, useState } from "react";
 import { BiTrash } from "react-icons/bi";
+import { db } from "./services/firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
 
 function App() {
+  const [descriptionTask, setDescriptionTask] = useState("");
+
+  function handleCreateTask(e: FormEvent) {
+    e.preventDefault();
+
+    addDoc(collection(db, "taskUsers"), {
+      task: descriptionTask,
+      created: new Date(),
+    })
+      .then(() => {
+        setDescriptionTask("");
+        console.log("criado com sucesso");
+      })
+      .catch((error) => {
+        console.log("error: " + error);
+      });
+  }
+
   return (
     <div className="flex flex-col w-full h-screen items-center ">
       <header className=" mt-4 mb-11 border-b-2 p-2">
         <h1 className="font-bold text-4xl text-white mt-5">TO-DO NOW</h1>
       </header>
 
-      <form className="flex items-center w-full max-w-xl justify-center  mb-12 border-b-2 pb-6 ">
+      <form
+        onSubmit={handleCreateTask}
+        className="flex items-center w-full max-w-xl justify-center  mb-12 border-b-2 pb-6 "
+      >
         <input
           className="w-full bg-slate-200 rounded py-1 px-2 outline-none"
+          value={descriptionTask}
+          onChange={(e) => setDescriptionTask(e.target.value)}
           type="text"
           required
         />
